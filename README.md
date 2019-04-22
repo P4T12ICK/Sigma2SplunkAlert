@@ -5,7 +5,11 @@ Converts Sigma detection rules to a Splunk alert configuration.
 Many Security Operations Center (SOC) are using scheduled searches for their detection rules. Sigma is the new standard for describing detection rules. Deploying multiple Sigma detection rules into Splunk was a time-consuming task. Sigma2SplunkAlert converts multiple Sigma detection rules into a Splunk savedsearches.conf configuration. Additionally, Sigma2SplunkAlerts supports Splunk alert actions such as Send email or Add to Triggered Alerts. Sigma2SplunkAlerts introduces tokens to use the interesting fields of an alert in the email body.
 
 # How it works
-Sigma2SplunkAlert combines Sigma with the power of Jinja2 templating to generate a Splunk savedsearches.conf configuration. It uses the following inputs:
+Sigma2SplunkAlert combines Sigma with the power of Jinja2 templating to generate a Splunk savedsearches.conf configuration. 
+
+![text](https://github.com/P4T12ICK/Sigma2SplunkAlert/blob/master/Sigma2SplunkAlert.jpg)
+
+It uses the following inputs:
 * folder containing Sigma detection rules
 * Sigma configuration file with field names and index mapping (see [Sigma repository](https://github.com/Neo23x0/sigma) for more info)
 * Sigma2SplunkAlert configuration file containing Splunk alerts configuration values
