@@ -35,9 +35,13 @@ optional arguments:
 ````
 
 # Examples
-Translate a single rule with the standard configuration
+Translate a single Sigma detection rule with the standard configuration:
 ````
 ./sigma2splunkalert rules/sysmon_masquerading.yml 
+````
+Generates the following output:
+````
+# Generated with Sigma2SplunkAlert 
 [Masquerading]
 action.email = 1
 action.email.include.results_link = 0
@@ -67,9 +71,20 @@ request.ui_dispatch_view = search
 search = (source="WinEventLog:Microsoft-Windows-Sysmon/Operational" ((EventCode="1" (Image="*\\rundll32.exe" OR Image="*\\svchost.exe" OR Image="*\\smss.exe" OR Image="*\\csrss.exe" OR Image="*\\wininit.exe" OR Image="*\\services.exe" OR Image="*\\lsass.exe" OR Image="*\\lsm.exe" OR Image="*\\winlogon.exe" OR Image="*\\explorer.exe" OR Image="*\\taskhost.exe")) NOT ((Image="*\\Windows\\System32\*" OR Image="*\\Windows\\Syswow64\*"))) NOT ((Image="C:\\Windows\\Explorer.EXE"))) | table User,Image,CommandLine
 ````
 
+Translates a folder of sigma detection rules to a savedsearches.conf:
+````
+./sigma2splunkalert ../forks/sigma/rules/windows/sysmon/
+````
+
+Translate a folder of Sigma detection rules with a custom Sigma and Sigma2SplunkAlert configuration:
+````
+./sigma2splunkalert -c config/config.yml -sc sigma_config/splunk-all.yml ../forks/sigma/rules/windows/sysmon/
+````
 
 # Next Steps
-
-
+* Support of recurse into subdirectories
+* Improved error handling
+* Further use of token
 
 # Credits
+This is a private repository developed by Patrick Bareiss (Twitter: @bareiss_patrick).
