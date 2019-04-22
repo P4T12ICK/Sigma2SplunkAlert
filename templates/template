@@ -1,0 +1,44 @@
+{% for uc in uc_list %}
+# Generated with Sigma2SplunkAlert 
+[{{ uc.title }}]
+{% if uc.alert_EMail==1 %}action.email = 1
+action.email.include.results_link = {{ uc.email.result_link }}
+action.email.include.view_link = {{ uc.email.view_link }} 
+{% if uc.email.include_search==1 %}action.email.include.search = {{ uc.email.include_search }}
+{% endif %}
+{% if uc.email.include_trigger==1 %}action.email.include.trigger = {{ uc.email.include_trigger }}
+{% endif %}
+{% if uc.email.include_trigger_time==1 %}action.email.include.trigger_time = {{ uc.email.include_trigger_time }}
+{% endif %}
+{% if uc.email.inline==1 %}action.email.inline = {{ uc.email.inline }} 
+{% endif %}
+{% if uc.email.sendcsv==1 %}action.email.sendcsv = {{ uc.email.sendcsv }}
+{% endif %}
+{% if uc.email.sendpdf==1 %}action.email.sendpdf = {{ uc.email.sendpdf }}
+{% endif %}
+{% if uc.email.sendresults==1 %}action.email.sendresults = {{ uc.email.sendresults }}
+{% endif %}
+action.email.subject.alert = {{ uc.email.subject }} 
+action.email.to = {{ uc.email.to }}
+action.email.message.alert = {{ uc.email.message | replace("%fields%",uc.fieldBlock) | replace("|","\\\n") }}
+action.email.useNSSubject = 1
+{% endif %}
+{% if uc.alert_TriggeredAlert==1 %}alert.severity = {{ uc.alert.severiyt }}
+{% endif %}
+alert.suppress = 0
+alert.track = 1
+alert.expires = 24h
+counttype = number of events
+cron_schedule = {{ uc.cron_schedule }}
+description = {{ uc.description }}
+dispatch.earliest_time = {{ uc.earliest_time }}
+dispatch.latest_time = {{ uc.latest_time }}
+enableSched = 1
+quantity = 0
+relation = greater than
+request.ui_dispatch_app = {{ uc.app }}
+request.ui_dispatch_view = search
+search = {{ uc.search }}
+
+{% endfor %}
+

@@ -1,0 +1,135 @@
+#!/usr/bin/env python3
+# A Sigma to Splunk Alter Converter
+# Copyright 2019 Patrick Bareiss (@patrick_bareiss)
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+import sys
+import argparse
+import os
+import yaml
+import subprocess
+from subprocess import DEVNULL
+from jinja2 import Environment, FileSystemLoader
+from classes.UseCase import UseCase
+
+
+# parse input variables
+parser = argparse.ArgumentParser(description='Convert Sigma rules to Splunk Alerts savedsearches.conf configuration.')
+parser.add_argument('rules', action='store', metavar='N', nargs='+',help='folder or file containing the Sigma rules')
+parser.add_argument('--config','-c', action='store', dest='config', help='Sigma2SplunkAlert configuration file')
+parser.add_argument('--sigma-config','-sc', action='store', dest='sigma_config', help='Sigma configuration with field name and index name mapping')
+
+cmdargs = parser.parse_args()
+
+# cmdargs Sigma2SplunkAlert configuration
+if cmdargs.config:
+    converter_config_path = cmdargs.config
+else:
+    converter_config_path = 'config/config.yml'
+
+# cmdargs Sigma Configuration
+if cmdargs.sigma_config:
+    sigma_config_path = cmdargs.sigma_config
+else:
+    sigma_config_path = 'sigma_config/splunk-all.yml'
+
+
+# list all files in directory with extension yaml
+input_path_list = cmdargs.rules
+
+# uc_list to store all detection rules
+uc_list = []
+
+for input_path in input_path_list:
+    # check if path is a full pah
+    #if os.path.isabs(input_path):
+    #    path = input_path
+    #else:
+    #    path = os.getcwd() + '/' + input_path
+    path = input_path    
+
+    files = []
+
+    if os.path.isfile(path):
+        files.append(path)
+    else:
+        # r=root, d=directories, f = files
+        for r, d, f in os.walk(path):
+            for file in f:
+                if '.yml' in file:
+                    files.append(os.path.join(r, file))
+    
+    # Generate Sigma detection rule list based on input folder
+    for file in files:
+         
+        # Convert Sigma to Splunk search
+        rule_path = file
+    
+        command = ['sigmac -t splunk -c ' + sigma_config_path + ' ' + rule_path]
+        sigma_search = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=DEVNULL, universal_newlines=True)
+       
+        if sigma_search.returncode!=0:
+            print("# Failure converting the Sigma File: " + file)
+            continue
+
+        # Load Sigma detection rule
+        with open(rule_path,'r') as stream:
+            try:
+                sigma_uc = list(yaml.safe_load_all(stream))[0]
+            except yaml.YAMLError as exc:
+                print(exc)
+                sys.exit(1)
+ 
+        # Load Sigma2SplunkAlert configuration
+        with open(converter_config_path,'r') as stream:
+            try:
+                converter_config = yaml.safe_load(stream)
+            except yaml.YAMLError as exc:
+                print(exc)
+                print("Failure to read the Sigma2SplunkAlert configuration")
+                sys.exit(1)    
+        
+        # Create data objects
+        uc = UseCase(sigma_uc["title"],sigma_uc["description"],sigma_search.stdout,converter_config["cron_schedule"],converter_config["earliest_time"],converter_config["latest_time"],converter_config["app"])
+        if 'triggered_alerts' in converter_config["alert_action"]:
+            uc.addTriggeredAlert(converter_config["alert_action"]["triggered_alerts"]["severity"])
+        if 'email' in converter_config["alert_action"]:
+            email = converter_config["alert_action"]["email"]
+            uc.addEmailAlert(email["to"],email["subject"],email["message"],email["result_link"],email["view_link"],email["include_search"],email["include_trigger"],email["include_trigger_time"],email["inline"],email["sendcsv"],email["sendpdf"],email["sendresults"])
+        
+        # Generate Field Blocks for E-Mail
+        if 'fields' in sigma_uc:
+            field_block = ''
+            for field_value in sigma_uc['fields']:
+                field_block = field_block + '|' + field_value + ': $result.' + field_value + '$ '
+            uc.addFieldsBlock(field_block)
+        
+        uc_list.append(uc)   
+ 
+
+
+# Use Jinja2 Templating for create configuration
+file_loader = FileSystemLoader('templates')
+env = Environment(loader=file_loader)
+env.trim_blocks = True
+env.lstrip_blocks = True
+env.rstrip_blocks = True
+template = env.get_template('template')
+
+output = template.render(uc_list=uc_list)
+print(output)
+
+
