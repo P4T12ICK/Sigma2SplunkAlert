@@ -18,6 +18,7 @@ and generates a savedsearches.conf configuration. More information about the Sig
 
 # Requirements
 Sigma2SplunkAlert needs Sigma for converting the Sigma detection rules into Splunk searches. Sigma needs to be installed and part of the environment variables. Furthermore, Python >= 3.5, PyYAML and Jinja2 is needed.
+The Sigma2SplunkAlert was tested with Splunk version 7.2.5. If you find some incompatibility to previous Splunk versions, open an issue and I will try to add the support as soon as possible.
 
 # Usage
 ````
