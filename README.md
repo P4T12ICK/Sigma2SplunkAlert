@@ -7,7 +7,7 @@ Many Security Operations Center (SOC) are using scheduled searches for their det
 # How it works
 Sigma2SplunkAlert combines Sigma with the power of Jinja2 templating to generate a Splunk savedsearches.conf configuration. 
 
-![text](https://github.com/P4T12ICK/Sigma2SplunkAlert/blob/master/Sigma2SplunkAlert.jpg)
+![text](https://github.com/P4T12ICK/Sigma2SplunkAlert/blob/master/images/Sigma2SplunkAlert.jpg)
 
 It uses the following inputs:
 * folder containing Sigma detection rules
