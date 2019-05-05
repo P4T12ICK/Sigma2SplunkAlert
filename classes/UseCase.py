@@ -15,6 +15,36 @@ class UseCase:
         self.alert_TriggeredAlert = 0
         self.alert_EMail = 0
 
+    def addStatusValue(self, status):
+        self.status = status
+
+    def addReferencesValue(self, reference_array):
+        self.references = ''
+        for reference in reference_array:
+            self.references = self.references + reference + ' '
+
+    def addTagsValue(self, tags_array):
+        self.tags = ''
+        for tag in tags_array:
+            self.tags = self.tags + tag + ' '
+
+    def addAuthorValue(self, author):
+        self.author = author
+
+    def addDateValue(self, date):
+        self.date = date
+
+    def addFalsepositivesValue(self, falsepositives_array):
+        self.falsepositives = ''
+        if isinstance(falsepositives_array,list):
+            for falsepositive in falsepositives_array:
+                self.falsepositives = self.falsepositives + falsepositive + ' '
+        else:
+            self.falsepositives = falsepositives_array
+
+    def addLevelValue(self, level):
+        self.level = level
+
     def addTriggeredAlert(self, alert):
         self.alert_TriggeredAlert = 1
         self.alert = TriggeredAlert(alert)
@@ -25,3 +55,7 @@ class UseCase:
 
     def addFieldsBlock(self, string):
         self.fieldBlock = string
+
+    def addMitreBlock(self, string):
+        self.mitreBlock = string
+

@@ -20,7 +20,7 @@ action.email.include.view_link = {{ uc.email.view_link }}
 {% endif %}
 action.email.subject.alert = {{ uc.email.subject }} 
 action.email.to = {{ uc.email.to }}
-action.email.message.alert = {{ uc.email.message | replace("%fields%",uc.fieldBlock) | replace("|","\\\n") }}
+action.email.message.alert = {{ uc.email.message | replace("%title%",uc.title) | replace("%status%",uc.status) | replace("%description%",uc.description) | replace("%references%",uc.references) | replace("%tags%",uc.tags) | replace("%author%",uc.author) | replace("%date%",uc.date) | replace("%falsepositives%",uc.falsepositives) | replace("%level%",uc.level) | replace("%mitre%",uc.mitreBlock) | replace("%fields%",uc.fieldBlock) | replace("|","\\\n") }}
 action.email.useNSSubject = 1
 {% endif %}
 {% if uc.alert_TriggeredAlert==1 %}alert.severity = {{ uc.alert.severiyt }}

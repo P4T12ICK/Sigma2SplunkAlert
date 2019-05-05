@@ -6,7 +6,7 @@ alert_action:
     email:
         to: 'test@test.de' 
         subject: 'Splunk Alert: $name$'
-        message: 'Splunk Alert $name$ triggered |List of interesting fields:  %fields% '
+        message: 'Splunk Alert $name$ triggered %mitre% |List of interesting fields:  %fields% |title: %title% status: %status% |description: %description% |references: %references% |tags: %tags% |author: %author% |date: %date% |falsepositives: %falsepositives% |level: %level%'
         result_link: 0
         view_link: 0
         include_search: 0 
@@ -18,3 +18,6 @@ alert_action:
         sendresults: 0
     triggered_alerts:
         severity: 3
+    summary_index:
+        source: 1
+

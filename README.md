@@ -87,9 +87,7 @@ Translate a folder of Sigma detection rules with a custom Sigma and Sigma2Splunk
 ````
 
 # Next Steps
-* Support of recurse into subdirectories
 * Improved error handling
-* Further use of token
 
 # Credits
 This is a private repository developed by Patrick Bareiss (Twitter: [@bareiss_patrick](https://twitter.com/bareiss_patrick)).

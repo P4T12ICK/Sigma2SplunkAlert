@@ -80,6 +80,7 @@ for input_path in input_path_list:
     
         command = ['sigmac -t splunk -c ' + sigma_config_path + ' ' + rule_path]
         sigma_search = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=DEVNULL, universal_newlines=True)
+        sigma_search_output = sigma_search.stdout
        
         if sigma_search.returncode!=0:
             print("# Failure converting the Sigma File: " + file)
@@ -101,9 +102,28 @@ for input_path in input_path_list:
                 print(exc)
                 print("Failure to read the Sigma2SplunkAlert configuration")
                 sys.exit(1)    
-        
+       
+        if 'summary_index' in converter_config["alert_action"]:
+            sigma_search_output = sigma_search_output[:-1] + ' |collect index=summary '
+            if converter_config["alert_action"]["summary_index"]["source"]:
+                sigma_search_output = sigma_search_output + 'source="' + sigma_uc["title"] + '"'
+ 
         # Create data objects
-        uc = UseCase(sigma_uc["title"],sigma_uc["description"],sigma_search.stdout,converter_config["cron_schedule"],converter_config["earliest_time"],converter_config["latest_time"],converter_config["app"])
+        uc = UseCase(sigma_uc["title"],sigma_uc["description"],sigma_search_output,converter_config["cron_schedule"],converter_config["earliest_time"],converter_config["latest_time"],converter_config["app"])
+        if 'status' in sigma_uc:
+            uc.addStatusValue(sigma_uc['status'])
+        if 'references' in sigma_uc:
+            uc.addReferencesValue(sigma_uc['references'])
+        if 'tags' in sigma_uc:
+            uc.addTagsValue(sigma_uc['tags'])
+        if 'author' in sigma_uc:
+            uc.addAuthorValue(sigma_uc['author'])
+        if 'date' in sigma_uc:
+            uc.addDateValue(sigma_uc['date'])
+        if 'falsepositives' in sigma_uc:
+            uc.addFalsepositivesValue(sigma_uc['falsepositives'])
+        if 'level' in sigma_uc:
+            uc.addLevelValue(sigma_uc['level'])
         if 'triggered_alerts' in converter_config["alert_action"]:
             uc.addTriggeredAlert(converter_config["alert_action"]["triggered_alerts"]["severity"])
         if 'email' in converter_config["alert_action"]:
@@ -116,6 +136,18 @@ for input_path in input_path_list:
             for field_value in sigma_uc['fields']:
                 field_block = field_block + '|' + field_value + ': $result.' + field_value + '$ '
             uc.addFieldsBlock(field_block)
+       
+        if 'tags' in sigma_uc:
+            mitre_block = '|Mitre ATT&CK ID: '
+            for tag_value in sigma_uc['tags']:
+                if tag_value.startswith('attack.t'):
+                    mitre_block = mitre_block + tag_value[7:] + ' '
+            mitre_block = mitre_block + '|Mitre ATT&CK Tactic: '
+            for tag_value in sigma_uc['tags']:
+                if not (tag_value.startswith('attack.t') or tag_value.startswith('attack.g') or tag_value.startswith('attack.s')) and tag_value.startswith('attack.'):
+                    mitre_block = mitre_block + tag_value[7:] + ' ' 
+            mitre_block = mitre_block + '|'
+            uc.addMitreBlock(mitre_block)
         
         uc_list.append(uc)   
  
