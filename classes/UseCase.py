@@ -59,3 +59,7 @@ class UseCase:
     def addMitreBlock(self, string):
         self.mitreBlock = string
 
+    def addSummaryIndex(self, attack_ID):
+        self.attack_ID = attack_ID
+
+

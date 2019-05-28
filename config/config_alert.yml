@@ -2,6 +2,8 @@ cron_schedule: '*/10 * * * *'
 earliest_time: '-10m'
 latest_time: 'now'
 app: 'detection_rule_repository'
+type: 'alert'
+whitelist: 0
 alert_action: 
     email:
         to: 'test@test.de' 
