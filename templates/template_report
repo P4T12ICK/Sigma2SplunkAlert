@@ -6,6 +6,8 @@ action.summary_index = 1
 {% if uc.attack_ID is defined %}action.summary_index.attack_ID = {{ uc.attack_ID }}
 {% endif %}
 action.summary_index.name = {{ uc.title }}
+{% if uc.level is defined %}action.summary_index.level = {{ uc.level }}
+{% endif %}
 alert.track = 0
 cron_schedule = {{ uc.cron_schedule }}
 description = test description
