@@ -32,6 +32,7 @@ parser.add_argument('rules', action='store', metavar='N', nargs='+',help='folder
 parser.add_argument('--config','-c', action='store', dest='config', help='Sigma2SplunkAlert configuration file')
 parser.add_argument('--sigma-config','-sc', action='store', dest='sigma_config', help='Sigma configuration with field name and index name mapping')
 parser.add_argument('--add-host','-ah',action='store_true',dest='add_host', help='Add host field to table command') 
+parser.add_argument('--add-transforming-command',action='store_true',dest='add_transforming_command', help='Add a Splunk transforming command if there is no table command') 
 
 cmdargs = parser.parse_args()
 
@@ -145,11 +146,16 @@ for input_path in input_path_list:
                 text_file.write(whitelist_fields)
                 text_file.close
                 print("# Lookup: " + file_name + " stored in lookups/ folder")
-                sigma_search_output = sigma_search_output[:-1] + " | search NOT [| inputlookup " + file_name + "]"
+                sigma_search_output = sigma_search_output[:-1] + " | search NOT [| inputlookup " + file_name + "] "
  
-        #if converter_config["whitelist"]:
-           # print("Whitelist On"        
- 
+        # Add transforming command if there is no table command
+        if cmdargs.add_transforming_command:
+            if not ('| table' in sigma_search_output):
+                sigma_search_output = sigma_search_output[:-1] + " | stats values(*) AS * by _time "                
+
+
+
+        # Add collect command to store the resukt in summary index
         if 'summary_index' in converter_config["alert_action"]: 
             if 'alert' in converter_config["type"]:
                 sigma_search_output = sigma_search_output[:-1] + ' | collect index=summary '
