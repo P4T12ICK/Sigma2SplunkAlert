@@ -31,8 +31,10 @@ parser = argparse.ArgumentParser(description='Convert Sigma rules to Splunk Aler
 parser.add_argument('rules', action='store', metavar='N', nargs='+',help='folder or file containing the Sigma rules')
 parser.add_argument('--config','-c', action='store', dest='config', help='Sigma2SplunkAlert configuration file')
 parser.add_argument('--sigma-config','-sc', action='store', dest='sigma_config', help='Sigma configuration with field name and index name mapping')
+parser.add_argument('--add-host','-ah',action='store_true',dest='add_host', help='Add host field to table command') 
 
 cmdargs = parser.parse_args()
+
 
 # cmdargs Sigma2SplunkAlert configuration
 if cmdargs.config:
@@ -113,6 +115,11 @@ for input_path in input_path_list:
                 print(exc)
                 print("Failure to read the Sigma2SplunkAlert configuration")
                 sys.exit(1)    
+
+        # Add Host field to table command
+        if cmdargs.add_host:
+            if '| table' in sigma_search_output:
+                sigma_search_output = sigma_search_output[:-1] + ",host "   
         
         # Whitelist generator
        
