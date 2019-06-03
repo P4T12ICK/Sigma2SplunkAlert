@@ -12,7 +12,7 @@ action.summary_index.name = {{ uc.title }}
 {% endif %}
 alert.track = 0
 cron_schedule = {{ uc.cron_schedule }}
-description = test description
+description = {{ uc.description }}
 dispatch.earliest_time = {{ uc.earliest_time }}
 dispatch.latest_time = {{ uc.latest_time }}
 display.visualizations.show = 0
