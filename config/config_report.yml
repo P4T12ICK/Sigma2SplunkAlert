@@ -7,4 +7,5 @@ whitelist: 1
 alert_action: 
     summary_index:
         source: 1
+        name: 'threat-hunting'
 
