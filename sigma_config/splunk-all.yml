@@ -19,6 +19,12 @@ logsources:
     service: sysmon
     conditions:
       source: 'WinEventLog:Microsoft-Windows-Sysmon/Operational'
+  windows-process-creation:
+    category: process_creation
+    product: windows    
+    conditions:
+      source: 'WinEventLog:Microsoft-Windows-Sysmon/Operational'
+      EventCode: 1
   windows-powershell:
     product: windows
     service: powershell
