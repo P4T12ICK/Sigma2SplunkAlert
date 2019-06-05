@@ -37,6 +37,15 @@ else:
     sigma_config_path = 'sigma_config/splunk-all.yml'
 
 
+# Load Sigma2SplunkAlert configuration
+with open(converter_config_path,'r') as stream:
+    try:
+        converter_config = yaml.safe_load(stream)
+    except yaml.YAMLError as exc:
+        print(exc)
+        print("Failure to read the Sigma2SplunkAlert configuration")
+        sys.exit(1)
+
 # list all files in directory with extension yaml
 input_path_list = cmdargs.rules
 
@@ -44,24 +53,9 @@ input_path_list = cmdargs.rules
 uc_list = []
 
 for input_path in input_path_list:
-    # check if path is a full pah
-    #if os.path.isabs(input_path):
-    #    path = input_path
-    #else:
-    #    path = os.getcwd() + '/' + input_path
     path = input_path    
 
     files = []
-
-    # Load Sigma2SplunkAlert configuration
-    with open(converter_config_path,'r') as stream:
-        try:
-            converter_config = yaml.safe_load(stream)
-        except yaml.YAMLError as exc:
-            print(exc)
-            print("Failure to read the Sigma2SplunkAlert configuration")
-            sys.exit(1)
-
 
     if os.path.isfile(path):
         files.append(path)
@@ -73,14 +67,15 @@ for input_path in input_path_list:
                     files.append(os.path.join(r, file))
         
     # Delete old lookups from lookups folder
-    folder = 'lookups/'
-    for the_file in os.listdir(folder):
-        file_path = os.path.join(folder, the_file)
-        try:
-            if os.path.isfile(file_path):
-                os.unlink(file_path)
-        except Exception as e:
-            print(e)
+    if converter_config["whitelist"]==1:
+        folder = 'lookups/'
+        for the_file in os.listdir(folder):
+            file_path = os.path.join(folder, the_file)
+            try:
+                if os.path.isfile(file_path):
+                    os.unlink(file_path)
+            except Exception as e:
+                print(e)
 
  
     # Generate Sigma detection rule list based on input folder
