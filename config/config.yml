@@ -1,0 +1,25 @@
+cron_schedule: '*/10 * * * *'
+earliest_time: '-10m'
+latest_time: 'now'
+app: 'detection_rule_repository'
+type: 'alert'
+whitelist: 0
+alert_action: 
+    email:
+        to: 'test@test.de' 
+        subject: 'Splunk Alert: $name$'
+        message: 'Splunk Alert $name$ triggered %mitre% |List of interesting fields:  %fields% |title: %title% status: %status% |description: %description% |references: %references% |tags: %tags% |author: %author% |date: %date% |falsepositives: %falsepositives% |level: %level%'
+        result_link: 0
+        view_link: 0
+        include_search: 0 
+        include_trigger: 0
+        include_trigger_time: 0
+        inline: 0 
+        sendcsv: 0
+        sendpdf: 0
+        sendresults: 0
+    triggered_alerts:
+        severity: 3
+    summary_index:
+        source: 1
+
