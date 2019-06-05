@@ -88,7 +88,6 @@ for input_path in input_path_list:
         sigma_search = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=DEVNULL, universal_newlines=True)
         sigma_search_output = sigma_search.stdout
        
-        print("Returncode: " + str(sigma_search.returncode))
 
         if sigma_search.returncode!=0:
             print("# Failure converting the Sigma File: " + file)
