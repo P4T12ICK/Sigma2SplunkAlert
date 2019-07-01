@@ -4,6 +4,50 @@ from .EMail import EMail
 
 class UseCase:
 
+    def __init__(self, sigma_uc, config):
+	# add checks for missing values with try 
+        self.title = sigma_uc["title"]
+        self.description = sigma_uc["description"]
+	
+	# add checks for missing values
+	self.scheduled_search = config["scheduled_search"]
+	self.app = config["config"]
+        self.cron_schedule = config["cron_schedule"]
+	self.earliest_time = config["earliest_time"]
+	self.latest_time = config["latest_time"]
+	self.schedule_window = config["schedule_window"]
+
+    
+    def addSigmaUCValues(self, sigma_uc):
+	# add checks for missing values with try 
+        self.title = sigma_uc["title"]
+        self.description = sigma_uc["description"]
+	
+	if 'level' in sigma_uc:
+            self.level = sigma_uc['level']
+	if 'status' in sigma_uc:
+            self.status = sigma_uc['status']
+        if 'tags' in sigma_uc:
+            self.tags = sigma_uc['tags'] #array
+        if 'author' in sigma_uc:
+            self.author = sigma_uc['author']
+        if 'falsepositives' in sigma_uc:
+            self.falsepositives = sigma_uc['falsepositives']
+	
+    def addConfigValues(self, sigma_uc, config):
+        # add checks for missing values
+        self.scheduled_search = config["scheduled_search"]
+        self.app = config["config"]
+        self.cron_schedule = config["cron_schedule"]
+        self.earliest_time = config["earliest_time"]
+        self.latest_time = config["latest_time"]
+        self.schedule_window = config["schedule_window"]
+      
+        if 'email' in converter_config["alert_action"]: 
+            self.email = EMail(converter_config["alert_action"]["email"], sigma_uc)
+
+        # to do
+
     def  __init__(self, title, description, search, cron_schedule, earliest_time, latest_time, app):
         self.title = title
         self.description = description

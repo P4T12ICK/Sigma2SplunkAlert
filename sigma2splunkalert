@@ -13,6 +13,15 @@ from jinja2 import Environment, FileSystemLoader
 from classes.UseCase import UseCase
 
 
+
+def main(argv):
+    # My code here
+    print('Test') 
+
+if __name__ == "__main__":
+    main(sys.argv)
+
+
 # parse input variables
 parser = argparse.ArgumentParser(description='Convert Sigma rules to Splunk Alerts savedsearches.conf configuration.')
 parser.add_argument('rules', action='store', metavar='N', nargs='+',help='folder or file containing the Sigma rules')
