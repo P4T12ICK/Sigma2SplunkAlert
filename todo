@@ -25,14 +25,15 @@ cron_schedule: '*/10 * * * *'
 earliest_time: '-10m'
 latest_time: 'now'
 schedule_window: auto	#New Option
-search_transformations:	# implement in a way that everyody can write an extension 
+search_transformations:	# implement in a way that everyody can write an extension
     - transforming_command
     - add_host_field
     - add_whitelist
 alert_action:
     summary_index:
         name: 'threat-hunting'
-	enrich_tags: 1
+	      enrich_tags: 1
+        enrich_level: 1
     email:       # remove value with 0 from the config
         to: 'test@test.de'
         subject: 'Splunk Alert: $name$'
@@ -46,8 +47,3 @@ alert_action:
         sendcsv: 0
         sendpdf: 0
         sendresults: 0
- 
-    
-
-
-

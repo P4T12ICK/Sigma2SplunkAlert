@@ -11,61 +11,100 @@ import subprocess
 from subprocess import DEVNULL
 from jinja2 import Environment, FileSystemLoader
 from classes.UseCase import UseCase
-
+from classes.DetectionRuleConverter import DetectionRuleConverter
 
 
 def main(argv):
-    # My code here
-    print('Test') 
+    # parse input variables
+    parser = argparse.ArgumentParser(
+        description='Convert Sigma rules to Splunk Alerts savedsearches.conf configuration.')
+    parser.add_argument('rules', action='store', metavar='N', nargs='+',
+                        help='folder or file containing the Sigma rules')
+    parser.add_argument('--config', '-c', action='store', dest='config',
+                        help='Sigma2SplunkAlert configuration file')
+    parser.add_argument('--sigma-config', '-sc', action='store', dest='sigma_config',
+                        help='Sigma configuration with field name and index name mapping')
 
-if __name__ == "__main__":
-    main(sys.argv)
+    cmdargs = parser.parse_args()
+
+    # cmdargs Sigma2SplunkAlert configuration
+    if cmdargs.config:
+        converter_config_path = cmdargs.config
+    else:
+        converter_config_path = 'config/config.yml'
+
+    # cmdargs Sigma Configuration
+    if cmdargs.sigma_config:
+        sigma_config_path = cmdargs.sigma_config
+    else:
+        sigma_config_path = 'sigma_config/splunk-all.yml'
+
+    # Splunk Search Converter
+
+    # variables
+    input_path_list = cmdargs.rules
+    detection_rules = []
+
+    # Load Sigma2SplunkAlert Configuration
+    sigma2splunkalertconfig = openSigma2SplunkConfiguration(converter_config_path)
+
+    # Iterate through N input folders
+    for input_path in input_path_list:
+        files = loadSigmaRules(input_path)
+        for file in files:
+            # Load Sigma Rule
+            sigma_rule = openSigmaDetectionRule(file)
+
+            # Convert Sigma Rule to Splunk Search
+            splunk_search = DetectionRuleConverter.convertSigmaRule(sigma_config_path, file)
+            if splunk_search == "Converter Failure":
+                continue
+
+            # Perform Splunk Search search_transformations
+
+            # Create Detection Rule
+            detection_rule = UseCase(sigma_rule, sigma2splunkalertconfig, splunk_search)
+            detection_rules.append(detection_rule)
+
+    # Use Jinja2 Templating for create configuration
+    file_loader = FileSystemLoader('templates')
+    env = Environment(loader=file_loader)
+    env.trim_blocks = True
+    env.lstrip_blocks = True
+    env.rstrip_blocks = True
+
+    template = env.get_template('template')
+
+    output = template.render(uc_list=detection_rules)
+
+    print(output)
 
 
-# parse input variables
-parser = argparse.ArgumentParser(description='Convert Sigma rules to Splunk Alerts savedsearches.conf configuration.')
-parser.add_argument('rules', action='store', metavar='N', nargs='+',help='folder or file containing the Sigma rules')
-parser.add_argument('--config','-c', action='store', dest='config', help='Sigma2SplunkAlert configuration file')
-parser.add_argument('--sigma-config','-sc', action='store', dest='sigma_config', help='Sigma configuration with field name and index name mapping')
-parser.add_argument('--add-host','-ah',action='store_true',dest='add_host', help='Add host field to table command') 
-parser.add_argument('--add-transforming-command',action='store_true',dest='add_transforming_command', help='Add a Splunk transforming command if there is no table command') 
-
-cmdargs = parser.parse_args()
-
-
-# cmdargs Sigma2SplunkAlert configuration
-if cmdargs.config:
-    converter_config_path = cmdargs.config
-else:
-    converter_config_path = 'config/config.yml'
-
-# cmdargs Sigma Configuration
-if cmdargs.sigma_config:
-    sigma_config_path = cmdargs.sigma_config
-else:
-    sigma_config_path = 'sigma_config/splunk-all.yml'
+def openSigma2SplunkConfiguration(converter_config_path):
+    # Load Sigma2SplunkAlert configuration
+    with open(converter_config_path, 'r') as stream:
+        try:
+            converter_config = yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            print(exc)
+            print("Failure to read the Sigma2SplunkAlert configuration")
+            sys.exit(1)
+    return converter_config
 
 
-# Load Sigma2SplunkAlert configuration
-with open(converter_config_path,'r') as stream:
-    try:
-        converter_config = yaml.safe_load(stream)
-    except yaml.YAMLError as exc:
-        print(exc)
-        print("Failure to read the Sigma2SplunkAlert configuration")
-        sys.exit(1)
+def openSigmaDetectionRule(rule_path):
+    # Load Sigma detection rule
+    with open(rule_path, 'r') as stream:
+        try:
+            sigma_uc = list(yaml.safe_load_all(stream))[0]
+        except yaml.YAMLError as exc:
+            print(exc)
+            sys.exit(1)
+    return sigma_uc
 
-# list all files in directory with extension yaml
-input_path_list = cmdargs.rules
 
-# uc_list to store all detection rules
-uc_list = []
-
-for input_path in input_path_list:
-    path = input_path    
-
+def loadSigmaRules(path):
     files = []
-
     if os.path.isfile(path):
         files.append(path)
     else:
@@ -74,153 +113,8 @@ for input_path in input_path_list:
             for file in f:
                 if '.yml' in file:
                     files.append(os.path.join(r, file))
-        
-    # Delete old lookups from lookups folder
-    if converter_config["whitelist"]==1:
-        folder = 'lookups/'
-        for the_file in os.listdir(folder):
-            file_path = os.path.join(folder, the_file)
-            try:
-                if os.path.isfile(file_path):
-                    os.unlink(file_path)
-            except Exception as e:
-                print(e)
-
- 
-    # Generate Sigma detection rule list based on input folder
-    for file in files:
-         
-        # Convert Sigma to Splunk search
-        rule_path = file
-    
-        command = ['sigmac -t splunk -c ' + sigma_config_path + ' ' + rule_path]
-        sigma_search = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=DEVNULL, universal_newlines=True)
-        sigma_search_output = sigma_search.stdout
-       
-
-        if sigma_search.returncode!=0:
-            print("# Failure converting the Sigma File: " + file)
-            continue
-
-        # Load Sigma detection rule
-        with open(rule_path,'r') as stream:
-            try:
-                sigma_uc = list(yaml.safe_load_all(stream))[0]
-            except yaml.YAMLError as exc:
-                print(exc)
-                sys.exit(1)
- 
-        # Add Host field to table command
-        if cmdargs.add_host:
-            if '| table' in sigma_search_output:
-                sigma_search_output = sigma_search_output[:-1] + ",host "   
-        
-        # Whitelist generator       
-        if converter_config["whitelist"]==1:
-            whitelist_array = []
-            for field in sigma_uc['detection']:
-                if field != 'condition':
-                    if not isinstance(sigma_uc['detection'][field],list):   
-                        for field2 in sigma_uc['detection'][field]:
-                            whitelist_array.append(field2)
-        
-            if len(whitelist_array) > 0:
-                whitelist_array = list(set(whitelist_array))
-
-                whitelist_fields = ''
-                for value in whitelist_array:               
-                    whitelist_fields = whitelist_fields + value + ','
-        
-                whitelist_fields = whitelist_fields[:-1] 
-                file_name = sigma_uc["title"] + "_whitelist.csv"
-                file_name = file_name.replace(" ", "_")
-                file_name = file_name.replace("/", "_")
-                text_file = open("lookups/" + file_name, "w")
-                text_file.write(whitelist_fields)
-                text_file.close
-                sigma_search_output = sigma_search_output[:-1] + " | search NOT [| inputlookup " + file_name + "] "
- 
-        # Add transforming command if there is no table command
-        if cmdargs.add_transforming_command:
-            if not ('| table' in sigma_search_output):
-                sigma_search_output = sigma_search_output[:-1] + " | stats values(*) AS * by _time "                
-
-        # Add collect command to store the result in summary index for alert
-        if 'alert' in converter_config["type"]:
-            if 'summary_index' in converter_config["alert_action"]:
-                sigma_search_output = sigma_search_output[:-1] + ' | collect index=summary '
-                if converter_config["alert_action"]["summary_index"]["source"]:
-                    sigma_search_output = sigma_search_output + 'source="' + sigma_uc["title"] + '"'
- 
-        # Create data objects
-        uc = UseCase(sigma_uc["title"],sigma_uc["description"],sigma_search_output,converter_config["cron_schedule"],converter_config["earliest_time"],converter_config["latest_time"],converter_config["app"])
-        if 'status' in sigma_uc:
-            uc.addStatusValue(sigma_uc['status'])
-        if 'references' in sigma_uc:
-            uc.addReferencesValue(sigma_uc['references'])
-        if 'tags' in sigma_uc:
-            uc.addTagsValue(sigma_uc['tags'])
-        if 'author' in sigma_uc:
-            uc.addAuthorValue(sigma_uc['author'])
-        if 'date' in sigma_uc:
-            uc.addDateValue(sigma_uc['date'])
-        if 'falsepositives' in sigma_uc:
-            uc.addFalsepositivesValue(sigma_uc['falsepositives'])
-        if 'level' in sigma_uc:
-            uc.addLevelValue(sigma_uc['level'])
-        if 'triggered_alerts' in converter_config["alert_action"]:
-            uc.addTriggeredAlert(converter_config["alert_action"]["triggered_alerts"]["severity"])
-        if 'email' in converter_config["alert_action"]:
-            email = converter_config["alert_action"]["email"]
-            uc.addEmailAlert(email["to"],email["subject"],email["message"],email["result_link"],email["view_link"],email["include_search"],email["include_trigger"],email["include_trigger_time"],email["inline"],email["sendcsv"],email["sendpdf"],email["sendresults"])
-      
-        # Configure summary index for report
-        if 'report' in converter_config["type"]:
-            if 'tags' in sigma_uc:
-                for tag_value in sigma_uc['tags']:
-                    if tag_value.startswith('attack.t'):
-                        uc.addSummaryIndex(tag_value[7:],converter_config["alert_action"]["summary_index"]["name"])
+    return files
 
 
-        # Generate some stuff for E-Mail
-        if 'alert' in converter_config["type"]:
-            if 'email' in converter_config["alert_action"]:
-                # Generate Field Blocks for E-Mail
-                if 'fields' in sigma_uc:
-                    field_block = ''
-                    for field_value in sigma_uc['fields']:
-                        field_block = field_block + '|' + field_value + ': $result.' + field_value + '$ '
-                        uc.addFieldsBlock(field_block)
-
-                if 'tags' in sigma_uc:
-                    mitre_block = '|Mitre ATT&CK ID: '
-                    for tag_value in sigma_uc['tags']:
-                        if tag_value.startswith('attack.t'):
-                            mitre_block = mitre_block + tag_value[7:] + ' '
-                    mitre_block = mitre_block + '|Mitre ATT&CK Tactic: '
-                    for tag_value in sigma_uc['tags']:
-                        if not (tag_value.startswith('attack.t') or tag_value.startswith('attack.g') or tag_value.startswith('attack.s')) and tag_value.startswith('attack.'):
-                            mitre_block = mitre_block + tag_value[7:] + ' '
-                    mitre_block = mitre_block + '|'
-                    uc.addMitreBlock(mitre_block) 
-        
-        uc_list.append(uc)   
- 
-
-
-# Use Jinja2 Templating for create configuration
-file_loader = FileSystemLoader('templates')
-env = Environment(loader=file_loader)
-env.trim_blocks = True
-env.lstrip_blocks = True
-env.rstrip_blocks = True
-if 'alert' in converter_config["type"]:
-    template = env.get_template('template_alert')
-else:
-    template = env.get_template('template_report')
-
-output = template.render(uc_list=uc_list)
-
-print(output)
-
-
+if __name__ == "__main__":
+    main(sys.argv)

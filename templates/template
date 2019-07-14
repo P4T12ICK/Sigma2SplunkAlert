@@ -1,16 +1,18 @@
 {% for uc in uc_list %}
-# Generated with Sigma2SplunkAlert 
+# Generated with Sigma2SplunkAlert
 [{{ uc.title }}]
-{% if uc.alert_EMail==1 %}action.email = 1
-action.email.include.results_link = {{ uc.email.result_link }}
-action.email.include.view_link = {{ uc.email.view_link }} 
+{% if uc.alert_email==1 %}action.email = 1
+{% if uc.email.result_link==1 %}action.email.include.results_link = {{ uc.email.result_link }}
+{% endif %}
+{% if uc.email.view_link==1 %}action.email.include.view_link = {{ uc.email.view_link }}
+{% endif %}
 {% if uc.email.include_search==1 %}action.email.include.search = {{ uc.email.include_search }}
 {% endif %}
 {% if uc.email.include_trigger==1 %}action.email.include.trigger = {{ uc.email.include_trigger }}
 {% endif %}
 {% if uc.email.include_trigger_time==1 %}action.email.include.trigger_time = {{ uc.email.include_trigger_time }}
 {% endif %}
-{% if uc.email.inline==1 %}action.email.inline = {{ uc.email.inline }} 
+{% if uc.email.inline==1 %}action.email.inline = {{ uc.email.inline }}
 {% endif %}
 {% if uc.email.sendcsv==1 %}action.email.sendcsv = {{ uc.email.sendcsv }}
 {% endif %}
@@ -18,13 +20,12 @@ action.email.include.view_link = {{ uc.email.view_link }}
 {% endif %}
 {% if uc.email.sendresults==1 %}action.email.sendresults = {{ uc.email.sendresults }}
 {% endif %}
-action.email.subject.alert = {{ uc.email.subject }} 
+action.email.subject.alert = {{ uc.email.subject }}
 action.email.to = {{ uc.email.to }}
 action.email.message.alert = {{ uc.email.message | replace("%title%",uc.title) | replace("%status%",uc.status) | replace("%description%",uc.description) | replace("%references%",uc.references) | replace("%tags%",uc.tags) | replace("%author%",uc.author) | replace("%date%",uc.date) | replace("%falsepositives%",uc.falsepositives) | replace("%level%",uc.level) | replace("%mitre%",uc.mitreBlock) | replace("%fields%",uc.fieldBlock) | replace("|","\\\n") }}
 action.email.useNSSubject = 1
 {% endif %}
-{% if uc.alert_TriggeredAlert==1 %}alert.severity = {{ uc.alert.severiyt }}
-{% endif %}
+alert.severity = 1
 alert.suppress = 0
 alert.track = 1
 alert.expires = 24h
@@ -38,7 +39,6 @@ quantity = 0
 relation = greater than
 request.ui_dispatch_app = {{ uc.app }}
 request.ui_dispatch_view = search
-search = {{ uc.search }}
+search = {{ uc.splunk_search }}
 
 {% endfor %}
-
