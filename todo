@@ -19,7 +19,7 @@ Alert Workflow:
 
 New Config File:
 
-scheduled_search: 'report'
+scheduled_search: 'report' -> to do
 app: 'sigma_hunting_app'
 cron_schedule: '*/10 * * * *'
 earliest_time: '-10m'

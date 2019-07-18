@@ -4,14 +4,13 @@ earliest_time: '-10m'
 latest_time: 'now'
 schedule_window: auto
 search_transformations:
-    - transforming_command
     - add_host_field
+    - add_transforming_command
     - add_whitelist
 alert_action:
     summary_index:
         name: 'threat-hunting'
         enrich_tags: 1
-        enrich_level: 1
     email:
         to: 'test@test.de'
         subject: 'Splunk Alert: $name$'

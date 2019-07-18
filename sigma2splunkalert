@@ -60,7 +60,13 @@ def main(argv):
             if splunk_search == "Converter Failure":
                 continue
 
-            # Perform Splunk Search search_transformations
+            # Perform Splunk Search transformations
+            splunk_search = DetectionRuleConverter.performSearchTransformation(
+                sigma2splunkalertconfig["search_transformations"], splunk_search, sigma_rule)
+
+            # Alert with Summary index
+            splunk_search = DetectionRuleConverter.addToSummaryIndex(
+                splunk_search, sigma2splunkalertconfig, sigma_rule)
 
             # Create Detection Rule
             detection_rule = UseCase(sigma_rule, sigma2splunkalertconfig, splunk_search)
