@@ -11,6 +11,7 @@ alert_action:
     summary_index:
         name: 'threat-hunting'
         enrich_tags: 1
+        enrich_level: 1
     email:
         to: 'test@test.de'
         subject: 'Splunk Alert: $name$'
