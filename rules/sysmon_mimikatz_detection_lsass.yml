@@ -16,6 +16,11 @@ detection:
         TargetImage: 'C:\windows\system32\lsass.exe'
         GrantedAccess: '0x1410'
     condition: selection
+fields:
+    - EventCode
+    - TargetImage
+    - GrantedAccess
+    - ComputerName
 falsepositives:
     - unknown
 level: high
