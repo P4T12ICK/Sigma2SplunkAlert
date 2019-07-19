@@ -61,8 +61,9 @@ def main(argv):
                 continue
 
             # Perform Splunk Search transformations
-            splunk_search = DetectionRuleConverter.performSearchTransformation(
-                sigma2splunkalertconfig["search_transformations"], splunk_search, sigma_rule)
+            if "search_transformations" in sigma2splunkalertconfig:
+                splunk_search = DetectionRuleConverter.performSearchTransformation(
+                    sigma2splunkalertconfig["search_transformations"], splunk_search, sigma_rule)
 
             # Alert with Summary index
             splunk_search = DetectionRuleConverter.addToSummaryIndex(
