@@ -39,6 +39,22 @@ class DetectionRuleConverter(object):
     @staticmethod
     def performSearchTransformation(transformations, search, sigma_rule):
         for trans in transformations:
+            # Search Transformation to add whitelist in front of table or transforming command (for better whitelisting)
+            if trans == "add_whitelist":
+                file_name = sigma_rule["title"] + "_whitelist.csv"
+                file_name = file_name.replace(" ", "_")
+                file_name = file_name.replace("/", "_")
+                file_name = file_name.replace("(", "")
+                file_name = file_name.replace(")", "")
+                if '| table' in search:
+                    tableindex = search.find('| table')
+                    search = search[:tableindex] + "| search NOT [| inputlookup " + file_name + "] " + search[tableindex:]
+                elif '| stats' in search:
+                    tableindex = search.find('| stats')
+                    search = search[:tableindex] + "| search NOT [| inputlookup " + file_name + "] " + search[tableindex:]
+                else:
+                    search = search[:-1] + " | search NOT [| inputlookup " + file_name + "] "
+            
             # Search Transformation to add host field
             if trans == "add_host_field":
                 if '| table' in search:
@@ -58,13 +74,6 @@ class DetectionRuleConverter(object):
             if trans == "add_transforming_command":
                 if not ('| table' in search):
                     search = search[:-1] + " | stats values(*) AS * by _time "
-
-            # Search Transformation to add whitelist
-            if trans == "add_whitelist":
-                file_name = sigma_rule["title"] + "_whitelist.csv"
-                file_name = file_name.replace(" ", "_")
-                file_name = file_name.replace("/", "_")
-                search = search[:-1] + " | search NOT [| inputlookup " + file_name + "] "
 
             # Add Custom Search Transformations here
 
