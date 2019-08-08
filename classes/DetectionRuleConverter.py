@@ -50,8 +50,8 @@ class DetectionRuleConverter(object):
                     tableindex = search.find('| table')
                     search = search[:tableindex] + "| search NOT [| inputlookup " + file_name + "] " + search[tableindex:]
                 elif '| stats' in search:
-                    tableindex = search.find('| stats')
-                    search = search[:tableindex] + "| search NOT [| inputlookup " + file_name + "] " + search[tableindex:]
+                    statsindex = search.find('| stats')
+                    search = search[:statsindex] + "| search NOT [| inputlookup " + file_name + "] " + search[statsindex:]
                 else:
                     search = search[:-1] + " | search NOT [| inputlookup " + file_name + "] "
             
