@@ -31,6 +31,8 @@ alert.track = 1
 alert.expires = 24h
 counttype = number of events
 cron_schedule = {{ uc.cron_schedule }}
+{% if uc.allow_skew!="" %}allow_skew = {{ uc.allow_skew}}
+{% endif %}
 description = {{ uc.description }}
 dispatch.earliest_time = {{ uc.earliest_time }}
 dispatch.latest_time = {{ uc.latest_time }}

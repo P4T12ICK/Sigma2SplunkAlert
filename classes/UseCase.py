@@ -14,6 +14,7 @@ class UseCase:
         self.description = sigma_uc["description"]
         self.app = config["app"]
         self.cron_schedule = config["cron_schedule"]
+        self.allow_skew = config["allow_skew"]
         self.earliest_time = config["earliest_time"]
         self.latest_time = config["latest_time"]
         self.schedule_window = config["schedule_window"]
