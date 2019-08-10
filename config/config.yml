@@ -3,6 +3,7 @@ cron_schedule: '*/10 * * * *'
 earliest_time: '-10m'
 latest_time: 'now'
 schedule_window: auto
+allow_skew: '50%'
 search_transformations:
     - add_host_field
     - add_transforming_command

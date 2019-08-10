@@ -14,10 +14,8 @@ class UseCase:
         self.description = sigma_uc["description"]
         self.app = config["app"]
         self.cron_schedule = config["cron_schedule"]
-        self.allow_skew = config["allow_skew"]
         self.earliest_time = config["earliest_time"]
         self.latest_time = config["latest_time"]
-        self.schedule_window = config["schedule_window"]
 
         # splunk search
         self.splunk_search = splunk_search
@@ -35,6 +33,10 @@ class UseCase:
             self.falsepositives = sigma_uc['falsepositives']
         if 'references' in sigma_uc:
             self.references = sigma_uc['references']
+        if 'allow_skew' in config:
+            self.allow_skew = config["allow_skew"]
+        if 'schedule_window' in config:
+            self.schedule_window = config["schedule_window"]
 
         # default values
         self.alert_email = 0
