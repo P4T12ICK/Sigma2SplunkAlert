@@ -1,7 +1,7 @@
 {% for uc in uc_list %}
 # Generated with Sigma2SplunkAlert
 [{{ uc.title }}]
-{% if uc.alert_email==1 %}action.email = 1
+{% if uc.action_email==1 %}action.email = 1
 {% if uc.email.result_link==1 %}action.email.include.results_link = {{ uc.email.result_link }}
 {% endif %}
 {% if uc.email.view_link==1 %}action.email.include.view_link = {{ uc.email.view_link }}
@@ -24,6 +24,30 @@ action.email.subject.alert = {{ uc.email.subject }}
 action.email.to = {{ uc.email.to }}
 action.email.message.alert = {{ uc.email.message | replace("%title%",uc.title) | replace("%status%",uc.status) | replace("%description%",uc.description) | replace("%references%",uc.references) | replace("%tags%",uc.tags) | replace("%author%",uc.author) | replace("%date%",uc.date) | replace("%falsepositives%",uc.falsepositives) | replace("%level%",uc.level) | replace("%mitre%",uc.mitreBlock) | replace("%fields%",uc.email.field_block) | replace("|","\\\n") }}
 action.email.useNSSubject = 1
+{% endif %}
+{% if uc.action_alert_manager==1 %}action.alert_manager = 1
+{% if uc.alert_manager.title is defined %}action.alert_manager.param.title = {{ uc.alert_manager.title }}
+{% endif %}
+{% if uc.alert_manager.auto_assign_owner is defined %}action.alert_manager.param.auto_assign_owner = {{ uc.alert_manager.auto_assign_owner }}
+{% endif %}
+action.alert_manager.param.auto_previous_resolve = {{ uc.alert_manager.auto_previous_resolve }}
+action.alert_manager.param.auto_subsequent_resolve = {{ uc.alert_manager.auto_subsequent_resolve }}
+action.alert_manager.param.auto_suppress_resolve = {{ uc.alert_manager.auto_suppress_resolve }}
+action.alert_manager.param.auto_ttl_resove = {{ uc.alert_manager.auto_ttl_resove }}
+{% if uc.alert_manager.display_fields is defined %}action.alert_manager.param.display_fields = {{ uc.alert_manager.display_fields }}
+{% endif %}
+{% if uc.alert_manager.urgency is defined %}action.alert_manager.param.urgency = {{ uc.alert_manager.urgency }}
+{% endif %}
+{% if uc.alert_manager.impact is defined %}action.alert_manager.param.impact = {{ uc.alert_manager.impact }}
+{% endif %}
+{% if uc.alert_manager.category is defined %}action.alert_manager.param.category = {{ uc.alert_manager.category }}
+{% endif %}
+{% if uc.alert_manager.subcategory is defined %}action.alert_manager.param.subcategory = {{ uc.alert_manager.subcategory }}
+{% endif %}
+{% if uc.alert_manager.tags is defined %}action.alert_manager.param.tags = {{ uc.alert_manager.tags }}
+{% endif %}
+{% if uc.alert_manager.notification_scheme is defined %}action.alert_manager.param.notification_scheme = {{ uc.alert_manager.notification_scheme }}
+{% endif %}
 {% endif %}
 alert.severity = 1
 alert.suppress = 0
