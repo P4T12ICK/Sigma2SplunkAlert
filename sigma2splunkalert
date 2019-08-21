@@ -24,6 +24,8 @@ def main(argv):
                         help='Sigma2SplunkAlert configuration file')
     parser.add_argument('--sigma-config', '-sc', action='store', dest='sigma_config',
                         help='Sigma configuration with field name and index name mapping')
+    parser.add_argument('--template', '-t', action='store', dest='template',
+                        help='file containing the savedsearches.conf template')
 
     cmdargs = parser.parse_args()
 
@@ -38,6 +40,10 @@ def main(argv):
         sigma_config_path = cmdargs.sigma_config
     else:
         sigma_config_path = 'sigma_config/splunk-all.yml'
+        
+    # cmdargs template Configuration
+    if cmdargs.template:
+        template_path = cmdargs.template
 
     # Splunk Search Converter
 
@@ -73,14 +79,25 @@ def main(argv):
             detection_rule = UseCase(sigma_rule, sigma2splunkalertconfig, splunk_search)
             detection_rules.append(detection_rule)
 
+    
     # Use Jinja2 Templating for create configuration
-    file_loader = FileSystemLoader('templates')
+    if cmdargs.template:
+        file_loader = FileSystemLoader(os.path.dirname(template_path))
+        print(os.path.dirname(template_path))
+    else:
+        file_loader = FileSystemLoader('templates')
+        
     env = Environment(loader=file_loader)
     env.trim_blocks = True
     env.lstrip_blocks = True
     env.rstrip_blocks = True
+    
+    if cmdargs.template:
+        print(os.path.basename(template_path))
+        template = env.get_template(os.path.basename(template_path))
 
-    template = env.get_template('template')
+    else:
+        template = env.get_template('template')
 
     output = template.render(uc_list=detection_rules)
 
