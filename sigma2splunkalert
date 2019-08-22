@@ -83,7 +83,6 @@ def main(argv):
     # Use Jinja2 Templating for create configuration
     if cmdargs.template:
         file_loader = FileSystemLoader(os.path.dirname(template_path))
-        print(os.path.dirname(template_path))
     else:
         file_loader = FileSystemLoader('templates')
         
@@ -93,7 +92,6 @@ def main(argv):
     env.rstrip_blocks = True
     
     if cmdargs.template:
-        print(os.path.basename(template_path))
         template = env.get_template(os.path.basename(template_path))
 
     else:
