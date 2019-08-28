@@ -4,6 +4,7 @@ from subprocess import DEVNULL
 from .TriggeredAlert import TriggeredAlert
 from .EMail import EMail
 from .SummaryIndex import SummaryIndex
+from .AlertManager import AlertManager
 
 
 class UseCase:
@@ -39,11 +40,16 @@ class UseCase:
             self.schedule_window = config["schedule_window"]
 
         # default values
-        self.alert_email = 0
+        self.action_alert_email = 0
+        self.action_alert_manager = 0
 
         # alert actions
         if 'email' in config["alert_action"]:
-            self.alert_email = 1
+            self.action_email = 1
             self.email = EMail(config["alert_action"]["email"], sigma_uc)
         if 'summary_index' in config["alert_action"]:
             self.summary_index = SummaryIndex(config["alert_action"]["summary_index"])
+        if 'alert_manager' in config["alert_action"]:
+            self.action_alert_manager = 1
+            self.alert_manager = AlertManager(config["alert_action"]["alert_manager"], sigma_uc)
+
