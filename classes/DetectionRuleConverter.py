@@ -31,7 +31,7 @@ class DetectionRuleConverter(object):
                             search = search + "sigma_tag=" + tag + ","
                         for tag in sigma_rule["tags"]:
                             if "attack.t" in tag:
-                                search = search + "attack_ID=" + tag[8:] + ","
+                                search = search + "attack_ID=" + tag[7:] + ","
                     if "enrich_level" in summaryindexconfig:
                         search = search + "level=" + sigma_rule["level"]
                     if search[-1:] == ",":
