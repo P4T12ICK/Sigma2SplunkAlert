@@ -13,7 +13,3 @@ alert_action:
         name: 'threat-hunting'
         enrich_tags: 1
         enrich_level: 1
-    email:
-        to: 'test@test.de'
-        subject: 'Splunk Alert: $name$'
-        message: 'Splunk Alert $name$ triggered |List of interesting fields:  %fields% |title: %title% status: %status% |description: %description% |references: %references% |tags: %tags% |author: %author% |date: %date% |falsepositives: %falsepositives% |level: %level%'
